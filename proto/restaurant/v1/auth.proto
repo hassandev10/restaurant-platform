@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package restaurant.v1;
+
+option go_package = "smart-restaurant-api/gen/restaurant/v1;restaurantv1";
+
+enum StaffRole {
+  STAFF_ROLE_UNSPECIFIED = 0;
+  STAFF_ROLE_ADMIN = 1;
+  STAFF_ROLE_MANAGER = 2;
+  STAFF_ROLE_SUPERVISOR = 3;
+  STAFF_ROLE_CHEF = 4;
+  STAFF_ROLE_KITCHEN = 5;
+  STAFF_ROLE_CASHIER = 6;
+  STAFF_ROLE_WAITER = 7;
+}
+
+message StaffUser {
+  string id = 1;
+  string restaurant_id = 2;
+  string branch_id = 3;
+  string username = 4;
+  string name = 5;
+  StaffRole role = 6;
+  bool is_active = 7;
+  string created_at = 8;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+  StaffUser user = 2;
+}
+
+message GetMeRequest {}
+
+message GetMeResponse {
+  StaffUser user = 1;
+}
+
+message LogoutRequest {}
+
+message LogoutResponse {
+  bool success = 1;
+}
+
+service AuthService {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc GetMe(GetMeRequest) returns (GetMeResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+}

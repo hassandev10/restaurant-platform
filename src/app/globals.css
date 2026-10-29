@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #faf8f5;
+  --foreground: #1c211e;
+  --card: #ffffff;
+  --card-foreground: #1c211e;
+  --primary: #1b372a;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f0e8;
+  --secondary-foreground: #224433;
+  --muted: #f0ebe1;
+  --muted-foreground: #677069;
+  --accent: #cc8943;
+  --accent-foreground: #3d2612;
+  --border: #e8e3d8;
+  --radius: 0.75rem;
+}
+
+body {
+  color: var(--foreground);
+  background-color: var(--background);
+  font-family: var(--font-cairo), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  direction: rtl;
+  text-align: right;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom smooth transitions */
+.smooth-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hide scrollbar for clean category pill scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Touch action optimization for mobile */
+button, a {
+  touch-action: manipulation;
+}

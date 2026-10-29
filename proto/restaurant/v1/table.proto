@@ -1,0 +1,229 @@
+syntax = "proto3";
+
+package restaurant.v1;
+
+option go_package = "smart-restaurant-api/gen/restaurant/v1;restaurantv1";
+
+enum TableStatus {
+  TABLE_STATUS_UNSPECIFIED = 0;
+  TABLE_STATUS_AVAILABLE = 1;
+  TABLE_STATUS_OCCUPIED = 2;
+  TABLE_STATUS_RESERVED = 3;
+  TABLE_STATUS_CLEANING = 4;
+  TABLE_STATUS_OUT_OF_SERVICE = 5;
+}
+
+enum SessionStatus {
+  SESSION_STATUS_UNSPECIFIED = 0;
+  SESSION_STATUS_OPEN = 1;
+  SESSION_STATUS_CLOSED = 2;
+}
+
+message TableSection {
+  string id = 1;
+  string restaurant_id = 2;
+  string branch_id = 3;
+  string name = 4;
+  int32 display_order = 5;
+  string created_at = 6;
+}
+
+message TableSession {
+  string id = 1;
+  string table_id = 2;
+  string opened_at = 3;
+  string closed_at = 4;
+  string opened_by = 5;
+  string closed_by = 6;
+  SessionStatus status = 7;
+  int32 duration_minutes = 8;
+  string notes = 9;
+  int32 orders_count = 10;
+  double total = 11;
+}
+
+message DiningTable {
+  string id = 1;
+  string restaurant_id = 2;
+  string branch_id = 3;
+  string table_number = 4;
+  string display_name = 5;
+  int32 capacity = 6;
+  string section_id = 7;
+  string section_name = 8;
+  string token = 9;
+  TableStatus status = 10;
+  bool is_active = 11;
+  optional TableSession current_session = 12;
+  string created_at = 13;
+  string updated_at = 14;
+}
+
+message TableQR {
+  string table_id = 1;
+  string qr_code_url = 2;
+  string token = 3;
+  string table_number = 4;
+}
+
+message TableFilterQuery {
+  optional TableStatus status = 1;
+  optional string section_id = 2;
+  optional string search = 3;
+  optional int32 page = 4;
+  optional int32 page_size = 5;
+}
+
+message ListTablesRequest {
+  TableFilterQuery filter = 1;
+}
+
+message ListTablesResponse {
+  repeated DiningTable tables = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  int32 total_pages = 5;
+}
+
+message GetTableRequest {
+  string table_id = 1;
+}
+
+message GetTableResponse {
+  DiningTable table = 1;
+}
+
+message CreateTableRequest {
+  string table_number = 1;
+  string display_name = 2;
+  int32 capacity = 3;
+  string section_id = 4;
+  string branch_id = 5;
+}
+
+message CreateTableResponse {
+  DiningTable table = 1;
+}
+
+message UpdateTableRequest {
+  string table_id = 1;
+  optional string display_name = 2;
+  optional int32 capacity = 3;
+  optional string section_id = 4;
+  optional TableStatus status = 5;
+  optional bool is_active = 6;
+}
+
+message UpdateTableResponse {
+  DiningTable table = 1;
+}
+
+message DeleteTableRequest {
+  string table_id = 1;
+}
+
+message DeleteTableResponse {
+  bool success = 1;
+}
+
+message ToggleTableActiveRequest {
+  string table_id = 1;
+  bool is_active = 2;
+}
+
+message ToggleTableActiveResponse {
+  DiningTable table = 1;
+}
+
+message GetTableQRRequest {
+  string table_id = 1;
+}
+
+message GetTableQRResponse {
+  TableQR qr = 1;
+}
+
+message RegenerateTableQRRequest {
+  string table_id = 1;
+}
+
+message RegenerateTableQRResponse {
+  TableQR qr = 1;
+}
+
+message ValidateTableNumberRequest {
+  string restaurant_slug = 1;
+  string table_input = 2;
+}
+
+message ValidateTableNumberResponse {
+  bool valid = 1;
+  optional DiningTable table = 2;
+  string token = 3;
+  string error_message = 4;
+  string code = 5;
+  string table_context_token = 6;
+}
+
+message ListSectionsRequest {
+  optional string branch_id = 1;
+}
+
+message ListSectionsResponse {
+  repeated TableSection sections = 1;
+}
+
+message CreateSectionRequest {
+  string name = 1;
+  int32 display_order = 2;
+  optional string branch_id = 3;
+}
+
+message CreateSectionResponse {
+  TableSection section = 1;
+}
+
+message OpenSessionRequest {
+  string table_id = 1;
+  string notes = 2;
+}
+
+message OpenSessionResponse {
+  TableSession session = 1;
+}
+
+message CloseSessionRequest {
+  string table_id = 1;
+  string session_id = 2;
+  string notes = 3;
+}
+
+message CloseSessionResponse {
+  TableSession session = 1;
+}
+
+message GetTableSessionRequest {
+  string table_id = 1;
+}
+
+message GetTableSessionResponse {
+  TableSession session = 1;
+}
+
+service TableService {
+  rpc ListTables(ListTablesRequest) returns (ListTablesResponse);
+  rpc GetTable(GetTableRequest) returns (GetTableResponse);
+  rpc CreateTable(CreateTableRequest) returns (CreateTableResponse);
+  rpc UpdateTable(UpdateTableRequest) returns (UpdateTableResponse);
+  rpc DeleteTable(DeleteTableRequest) returns (DeleteTableResponse);
+  rpc ToggleTableActive(ToggleTableActiveRequest) returns (ToggleTableActiveResponse);
+  rpc GetTableQR(GetTableQRRequest) returns (GetTableQRResponse);
+  rpc RegenerateTableQR(RegenerateTableQRRequest) returns (RegenerateTableQRResponse);
+  rpc ValidateTableNumber(ValidateTableNumberRequest) returns (ValidateTableNumberResponse);
+  rpc ListSections(ListSectionsRequest) returns (ListSectionsResponse);
+  rpc CreateSection(CreateSectionRequest) returns (CreateSectionResponse);
+  rpc OpenSession(OpenSessionRequest) returns (OpenSessionResponse);
+  rpc CloseSession(CloseSessionRequest) returns (CloseSessionResponse);
+  rpc GetTableSession(GetTableSessionRequest) returns (GetTableSessionResponse);
+}
