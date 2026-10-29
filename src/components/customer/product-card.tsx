@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Product } from "@/types/menu";
 import { PriceDisplay } from "@/components/shared/price-display";
-import { Plus, SlidersHorizontal, UtensilsCrossed } from "lucide-react";
+import { Plus, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
@@ -15,6 +15,7 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) => {
   const [imageError, setImageError] = useState(false);
   const hasOptions = product.options && product.options.length > 0;
+  const showImage = !imageError && Boolean(product.imageUrl?.trim());
 
   return (
     <div
@@ -26,11 +27,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
           : "opacity-60 bg-stone-50 cursor-not-allowed"
       )}
     >
-      {/* Product Image Thumbnail */}
-      <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-200/50">
-        {!imageError && product.imageUrl ? (
+      {/* Product Image Thumbnail - only displayed when a real image exists */}
+      {showImage && (
+        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-200/50">
           <Image
-            src={product.imageUrl}
+            src={product.imageUrl!}
             alt={product.nameAr}
             fill
             sizes="(max-width: 640px) 96px, 112px"
@@ -40,22 +41,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
             )}
             onError={() => setImageError(true)}
           />
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-stone-400 bg-cream-100">
-            <UtensilsCrossed className="w-6 h-6 mb-1 text-stone-300" />
-            <span className="text-[10px]">وجبة شهية</span>
-          </div>
-        )}
 
-        {/* Unavailable overlay */}
-        {!product.isAvailable && (
-          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[1px] flex items-center justify-center p-1 text-center">
-            <span className="text-[11px] font-bold text-white bg-rose-600/90 px-2 py-0.5 rounded-md">
-              غير متاح اليوم
-            </span>
-          </div>
-        )}
-      </div>
+          {/* Unavailable overlay over image */}
+          {!product.isAvailable && (
+            <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[1px] flex items-center justify-center p-1 text-center">
+              <span className="text-[11px] font-bold text-white bg-rose-600/90 px-2 py-0.5 rounded-md">
+                غير متاح اليوم
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Product Content Details */}
       <div className="flex flex-col justify-between flex-1 min-w-0">
@@ -65,11 +61,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
             <h3 className="text-sm sm:text-base font-bold text-stone-900 group-hover:text-forest-900 transition-colors line-clamp-1">
               {product.nameAr}
             </h3>
-            {product.badge && product.isAvailable && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gold-100 text-gold-800 border border-gold-200/60 flex-shrink-0">
-                {product.badge}
-              </span>
-            )}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {/* If no image and unavailable, show badge here */}
+              {!showImage && !product.isAvailable && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-200">
+                  غير متاح
+                </span>
+              )}
+              {product.badge && product.isAvailable && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gold-100 text-gold-800 border border-gold-200/60">
+                  {product.badge}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Description */}

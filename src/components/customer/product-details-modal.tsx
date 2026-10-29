@@ -7,7 +7,7 @@ import { SelectedOptionSnapshot } from "@/types/cart";
 import { useCart } from "@/context/cart-context";
 import { PriceDisplay } from "@/components/shared/price-display";
 import { formatCurrency } from "@/lib/formatters";
-import { X, Plus, Minus, Check, AlertCircle, UtensilsCrossed } from "lucide-react";
+import { X, Plus, Minus, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -179,29 +179,24 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
 
         {/* Modal Scrollable Body */}
         <div className="overflow-y-auto px-5 py-4 space-y-5">
-          {/* Hero Image */}
-          <div className="relative w-full h-48 sm:h-56 rounded-2xl overflow-hidden bg-stone-100 border border-stone-200/60">
-            {!imageError && product.imageUrl ? (
+          {/* Hero Image - only displayed when real image exists */}
+          {!imageError && Boolean(product.imageUrl?.trim()) && (
+            <div className="relative w-full h-48 sm:h-56 rounded-2xl overflow-hidden bg-stone-100 border border-stone-200/60">
               <Image
-                src={product.imageUrl}
+                src={product.imageUrl!}
                 alt={product.nameAr}
                 fill
                 sizes="(max-width: 640px) 100vw, 500px"
                 className="object-cover"
                 onError={() => setImageError(true)}
               />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-stone-400 bg-cream-100">
-                <UtensilsCrossed className="w-10 h-10 mb-2 text-stone-300" />
-                <span className="text-xs">مطعم الزيتونة</span>
-              </div>
-            )}
-            {product.badge && (
-              <span className="absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full bg-gold-600 text-white shadow-md">
-                {product.badge}
-              </span>
-            )}
-          </div>
+              {product.badge && (
+                <span className="absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full bg-gold-600 text-white shadow-md">
+                  {product.badge}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Product Title and Price */}
           <div className="border-b border-stone-100 pb-3">

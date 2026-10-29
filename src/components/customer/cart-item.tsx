@@ -5,7 +5,7 @@ import Image from "next/image";
 import { CartItem as CartItemType } from "@/types/cart";
 import { useCart } from "@/context/cart-context";
 import { PriceDisplay } from "@/components/shared/price-display";
-import { Plus, Minus, Trash2, UtensilsCrossed } from "lucide-react";
+import { Plus, Minus, Trash2 } from "lucide-react";
 
 interface CartItemProps {
   item: CartItemType;
@@ -18,9 +18,9 @@ export const CartItemRow: React.FC<CartItemProps> = ({ item }) => {
   return (
     <div className="flex flex-col p-4 bg-white rounded-2xl border border-stone-200/80 shadow-sm gap-3">
       <div className="flex items-start gap-3">
-        {/* Item Thumbnail */}
-        <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-200/60">
-          {!imageError && item.imageUrlSnapshot ? (
+        {/* Item Thumbnail - only displayed when real image exists */}
+        {!imageError && Boolean(item.imageUrlSnapshot?.trim()) && (
+          <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-200/60">
             <Image
               src={item.imageUrlSnapshot}
               alt={item.productNameSnapshot}
@@ -29,12 +29,8 @@ export const CartItemRow: React.FC<CartItemProps> = ({ item }) => {
               className="object-cover"
               onError={() => setImageError(true)}
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-cream-100 text-stone-400">
-              <UtensilsCrossed className="w-5 h-5 text-stone-300" />
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Item Details */}
         <div className="flex-1 min-w-0">
