@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package restaurant.v1;
+
+option go_package = "smart-restaurant-api/gen/restaurant/v1;restaurantv1";
+
+message Restaurant {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  string logo_url = 5;
+  string currency = 6;
+  bool is_open = 7;
+  int32 estimated_preparation_minutes = 8;
+  string phone = 9;
+  string address = 10;
+  string opening_hours = 11;
+  double tax_rate = 12;
+  double service_fee_rate = 13;
+  string created_at = 14;
+  string updated_at = 15;
+}
+
+message Branch {
+  string id = 1;
+  string restaurant_id = 2;
+  string name = 3;
+  string created_at = 4;
+}
+
+message GetRestaurantRequest {
+  string slug = 1;
+}
+
+message GetRestaurantResponse {
+  Restaurant restaurant = 1;
+}
+
+message UpdateRestaurantSettingsRequest {
+  optional string name = 1;
+  optional string description = 2;
+  optional string logo_url = 3;
+  optional string currency = 4;
+  optional bool is_open = 5;
+  optional int32 estimated_preparation_minutes = 6;
+  optional string phone = 7;
+  optional string address = 8;
+  optional string opening_hours = 9;
+  optional double tax_rate = 10;
+  optional double service_fee_rate = 11;
+}
+
+message UpdateRestaurantSettingsResponse {
+  Restaurant restaurant = 1;
+}
+
+message GetBranchRequest {
+  string branch_id = 1;
+}
+
+message GetBranchResponse {
+  Branch branch = 1;
+}
+
+service RestaurantService {
+  rpc GetRestaurant(GetRestaurantRequest) returns (GetRestaurantResponse);
+  rpc UpdateRestaurantSettings(UpdateRestaurantSettingsRequest) returns (UpdateRestaurantSettingsResponse);
+  rpc GetBranch(GetBranchRequest) returns (GetBranchResponse);
+}

@@ -1,0 +1,363 @@
+syntax = "proto3";
+
+package restaurant.v1;
+
+option go_package = "smart-restaurant-api/gen/restaurant/v1;restaurantv1";
+
+import "restaurant/v1/common.proto";
+
+enum InventoryItemType {
+  INVENTORY_ITEM_TYPE_UNSPECIFIED = 0;
+  INVENTORY_ITEM_TYPE_RAW_INGREDIENT = 1;
+  INVENTORY_ITEM_TYPE_FINISHED_GOOD = 2;
+}
+
+enum MovementType {
+  MOVEMENT_TYPE_UNSPECIFIED = 0;
+  MOVEMENT_TYPE_PURCHASE_RECEIPT = 1;
+  MOVEMENT_TYPE_ORDER_CONSUMPTION = 2;
+  MOVEMENT_TYPE_MANUAL_CONSUMPTION = 3;
+  MOVEMENT_TYPE_WASTE = 4;
+  MOVEMENT_TYPE_STOCK_ADJUSTMENT = 5;
+  MOVEMENT_TYPE_REVERSAL = 6;
+}
+
+enum ReceiptStatus {
+  RECEIPT_STATUS_UNSPECIFIED = 0;
+  RECEIPT_STATUS_DRAFT = 1;
+  RECEIPT_STATUS_CONFIRMED = 2;
+}
+
+enum AlertType {
+  ALERT_TYPE_UNSPECIFIED = 0;
+  ALERT_TYPE_LOW_STOCK = 1;
+  ALERT_TYPE_OUT_OF_STOCK = 2;
+  ALERT_TYPE_NEGATIVE_STOCK = 3;
+}
+
+enum AlertStatus {
+  ALERT_STATUS_UNSPECIFIED = 0;
+  ALERT_STATUS_ACTIVE = 1;
+  ALERT_STATUS_ACKNOWLEDGED = 2;
+  ALERT_STATUS_RESOLVED = 3;
+}
+
+message InventoryItem {
+  string id = 1;
+  string restaurant_id = 2;
+  string sku = 3;
+  string name = 4;
+  string name_en = 5;
+  string description = 6;
+  InventoryItemType item_type = 7;
+  string base_unit = 8;
+  double minimum_stock_quantity = 9;
+  double cost_per_base_unit = 10;
+  double quantity_on_hand = 11;
+  bool is_active = 12;
+  string created_at = 13;
+  string updated_at = 14;
+}
+
+message InventoryMovement {
+  string id = 1;
+  string restaurant_id = 2;
+  string inventory_item_id = 3;
+  string item_name = 4;
+  MovementType movement_type = 5;
+  double quantity_delta = 6;
+  double balance_before = 7;
+  double balance_after = 8;
+  double unit_cost = 9;
+  double total_cost = 10;
+  string source_type = 11;
+  string source_id = 12;
+  string idempotency_key = 13;
+  string reason = 14;
+  string actor_user_id = 15;
+  string actor_name = 16;
+  string created_at = 17;
+}
+
+message PurchaseReceiptItem {
+  string id = 1;
+  string purchase_receipt_id = 2;
+  string inventory_item_id = 3;
+  string item_name = 4;
+  string base_unit = 5;
+  double purchase_quantity = 6;
+  string purchase_unit = 7;
+  double conversion_factor = 8;
+  double base_quantity = 9;
+  double unit_cost = 10;
+  double line_total = 11;
+}
+
+message PurchaseReceipt {
+  string id = 1;
+  string restaurant_id = 2;
+  string receipt_reference = 3;
+  string supplier_name = 4;
+  ReceiptStatus status = 5;
+  double total_cost = 6;
+  string notes = 7;
+  string created_by = 8;
+  string created_by_name = 9;
+  string confirmed_by = 10;
+  string confirmed_by_name = 11;
+  string created_at = 12;
+  optional string confirmed_at = 13;
+  repeated PurchaseReceiptItem items = 14;
+}
+
+message RecipeIngredient {
+  string id = 1;
+  string recipe_id = 2;
+  string inventory_item_id = 3;
+  string item_name = 4;
+  double quantity_required = 5;
+  string unit = 6;
+  optional string applicable_option_id = 7;
+  string applicable_option_name = 8;
+}
+
+message MenuItemRecipe {
+  string id = 1;
+  string restaurant_id = 2;
+  string menu_product_id = 3;
+  string product_name = 4;
+  int32 version = 5;
+  bool is_active = 6;
+  string instructions = 7;
+  string created_at = 8;
+  string updated_at = 9;
+  repeated RecipeIngredient ingredients = 10;
+}
+
+message InventoryAlert {
+  string id = 1;
+  string restaurant_id = 2;
+  string inventory_item_id = 3;
+  string item_name = 4;
+  string base_unit = 5;
+  AlertType alert_type = 6;
+  AlertStatus status = 7;
+  double threshold_quantity = 8;
+  double current_quantity = 9;
+  string message = 10;
+  string created_at = 11;
+  optional string acknowledged_at = 12;
+  optional string acknowledged_by = 13;
+  optional string resolved_at = 14;
+}
+
+message GetSummaryResponse {
+  int32 total_items = 1;
+  int32 low_stock_items = 2;
+  int32 out_of_stock_items = 3;
+  int32 negative_stock_items = 4;
+  double total_valuation = 5;
+}
+
+message ListItemsRequest {
+  string search = 1;
+  string item_type = 2;
+  optional bool is_active = 3;
+  optional bool low_stock_only = 4;
+  PaginationRequest pagination = 5;
+}
+
+message ListItemsResponse {
+  repeated InventoryItem items = 1;
+  PaginationResponse pagination = 2;
+}
+
+message CreateItemRequest {
+  string sku = 1;
+  string name = 2;
+  string name_en = 3;
+  string description = 4;
+  InventoryItemType item_type = 5;
+  string base_unit = 6;
+  double minimum_stock_quantity = 7;
+  double cost_per_base_unit = 8;
+  optional double initial_quantity = 9;
+}
+
+message CreateItemResponse {
+  InventoryItem item = 1;
+}
+
+message GetItemRequest {
+  string id = 1;
+}
+
+message GetItemResponse {
+  InventoryItem item = 1;
+}
+
+message UpdateItemRequest {
+  string id = 1;
+  optional string sku = 2;
+  optional string name = 3;
+  optional string name_en = 4;
+  optional string description = 5;
+  optional InventoryItemType item_type = 6;
+  optional string base_unit = 7;
+  optional double minimum_stock_quantity = 8;
+  optional double cost_per_base_unit = 9;
+  optional bool is_active = 10;
+}
+
+message UpdateItemResponse {
+  InventoryItem item = 1;
+}
+
+message ListReceiptsRequest {
+  string status = 1;
+  PaginationRequest pagination = 2;
+}
+
+message ListReceiptsResponse {
+  repeated PurchaseReceipt receipts = 1;
+  PaginationResponse pagination = 2;
+}
+
+message CreatePurchaseReceiptItemRequest {
+  string inventory_item_id = 1;
+  double purchase_quantity = 2;
+  string purchase_unit = 3;
+  double conversion_factor = 4;
+  double unit_cost = 5;
+}
+
+message CreateReceiptRequest {
+  string receipt_reference = 1;
+  string supplier_name = 2;
+  string notes = 3;
+  repeated CreatePurchaseReceiptItemRequest items = 4;
+}
+
+message CreateReceiptResponse {
+  PurchaseReceipt receipt = 1;
+}
+
+message GetReceiptRequest {
+  string id = 1;
+}
+
+message GetReceiptResponse {
+  PurchaseReceipt receipt = 1;
+}
+
+message ConfirmReceiptRequest {
+  string id = 1;
+}
+
+message ConfirmReceiptResponse {
+  PurchaseReceipt receipt = 1;
+}
+
+message ApplyAdjustmentRequest {
+  string inventory_item_id = 1;
+  string adjustment_type = 2;
+  double quantity_delta = 3;
+  double counted_quantity = 4;
+  string reason = 5;
+}
+
+message ApplyAdjustmentResponse {
+  InventoryMovement movement = 1;
+}
+
+message ListRecipesRequest {
+  PaginationRequest pagination = 1;
+}
+
+message ListRecipesResponse {
+  repeated MenuItemRecipe recipes = 1;
+  PaginationResponse pagination = 2;
+}
+
+message GetRecipeRequest {
+  string menu_item_id = 1;
+}
+
+message GetRecipeResponse {
+  MenuItemRecipe recipe = 1;
+}
+
+message SaveRecipeIngredientRequest {
+  string inventory_item_id = 1;
+  double quantity_required = 2;
+  string unit = 3;
+  optional string applicable_option_id = 4;
+}
+
+message SaveRecipeRequest {
+  string menu_item_id = 1;
+  string instructions = 2;
+  repeated SaveRecipeIngredientRequest ingredients = 3;
+}
+
+message SaveRecipeResponse {
+  MenuItemRecipe recipe = 1;
+}
+
+message ListMovementsRequest {
+  string inventory_item_id = 1;
+  string movement_type = 2;
+  string from = 3;
+  string to = 4;
+  PaginationRequest pagination = 5;
+}
+
+message ListMovementsResponse {
+  repeated InventoryMovement movements = 1;
+  PaginationResponse pagination = 2;
+}
+
+message GetSummaryRequest {}
+
+message ListAlertsRequest {
+  string status = 1;
+  string alert_type = 2;
+  PaginationRequest pagination = 3;
+}
+
+message ListAlertsResponse {
+  repeated InventoryAlert alerts = 1;
+  PaginationResponse pagination = 2;
+}
+
+message ResolveAlertRequest {
+  string id = 1;
+}
+
+message ResolveAlertResponse {
+  InventoryAlert alert = 1;
+}
+
+service InventoryService {
+  rpc ListItems(ListItemsRequest) returns (ListItemsResponse);
+  rpc CreateItem(CreateItemRequest) returns (CreateItemResponse);
+  rpc GetItem(GetItemRequest) returns (GetItemResponse);
+  rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponse);
+
+  rpc ListReceipts(ListReceiptsRequest) returns (ListReceiptsResponse);
+  rpc CreateReceipt(CreateReceiptRequest) returns (CreateReceiptResponse);
+  rpc GetReceipt(GetReceiptRequest) returns (GetReceiptResponse);
+  rpc ConfirmReceipt(ConfirmReceiptRequest) returns (ConfirmReceiptResponse);
+
+  rpc ApplyAdjustment(ApplyAdjustmentRequest) returns (ApplyAdjustmentResponse);
+
+  rpc ListRecipes(ListRecipesRequest) returns (ListRecipesResponse);
+  rpc GetRecipe(GetRecipeRequest) returns (GetRecipeResponse);
+  rpc SaveRecipe(SaveRecipeRequest) returns (SaveRecipeResponse);
+
+  rpc ListMovements(ListMovementsRequest) returns (ListMovementsResponse);
+  rpc GetSummary(GetSummaryRequest) returns (GetSummaryResponse);
+
+  rpc ListAlerts(ListAlertsRequest) returns (ListAlertsResponse);
+  rpc ResolveAlert(ResolveAlertRequest) returns (ResolveAlertResponse);
+}

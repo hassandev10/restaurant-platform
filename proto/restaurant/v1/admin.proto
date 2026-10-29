@@ -1,0 +1,178 @@
+syntax = "proto3";
+
+package restaurant.v1;
+
+option go_package = "smart-restaurant-api/gen/restaurant/v1;restaurantv1";
+
+import "restaurant/v1/common.proto";
+import "restaurant/v1/order.proto";
+
+message StatusCount {
+  OrderStatus status = 1;
+  int32 count = 2;
+}
+
+message BestSellerItem {
+  string product_id = 1;
+  string name_ar = 2;
+  int32 order_count = 3;
+  double total_revenue = 4;
+}
+
+message TableOccupancyStats {
+  int32 total_tables = 1;
+  int32 available_tables = 2;
+  int32 occupied_tables = 3;
+  int32 reserved_tables = 4;
+  int32 cleaning_tables = 5;
+  int32 out_of_service_tables = 6;
+  double occupancy_rate = 7;
+}
+
+message GetDashboardStatsResponse {
+  int32 today_order_count = 1;
+  double today_sales = 2;
+  double total_sales = 3;
+  double average_order_value = 4;
+  repeated StatusCount orders_by_status = 5;
+  repeated Order recent_orders = 6;
+  repeated BestSellerItem best_sellers = 7;
+  TableOccupancyStats table_occupancy = 8;
+  string generated_at = 9;
+}
+
+message DailySalesPoint {
+  string date = 1;
+  double revenue = 2;
+  int32 orders = 3;
+}
+
+message HourlyDistributionPoint {
+  int32 hour = 1;
+  int32 orders = 2;
+}
+
+message CategoryRevenuePoint {
+  string category_id = 1;
+  string category_name = 2;
+  double revenue = 3;
+  int32 items_sold = 4;
+}
+
+message GetAnalyticsResponse {
+  string from = 1;
+  string to = 2;
+  double total_revenue = 3;
+  int32 total_orders = 4;
+  double average_order_value = 5;
+  int32 served_orders = 6;
+  int32 cancelled_orders = 7;
+  repeated DailySalesPoint sales_trend = 8;
+  repeated StatusCount status_distribution = 9;
+  repeated HourlyDistributionPoint hourly_distribution = 10;
+  repeated CategoryRevenuePoint top_categories = 11;
+}
+
+message GetDashboardStatsRequest {}
+
+message GetAnalyticsRequest {
+  string from = 1;
+  string to = 2;
+}
+
+message Promotion {
+  string id = 1;
+  string restaurant_id = 2;
+  string code = 3;
+  string title = 4;
+  string discount_type = 5;
+  double discount_value = 6;
+  double min_order_amount = 7;
+  optional double max_discount_amount = 8;
+  optional string start_date = 9;
+  optional string end_date = 10;
+  bool is_active = 11;
+  optional int32 usage_limit = 12;
+  int32 times_used = 13;
+  string created_at = 14;
+  string updated_at = 15;
+}
+
+message ListPromotionsRequest {}
+
+message ListPromotionsResponse {
+  repeated Promotion promotions = 1;
+}
+
+message CreatePromotionRequest {
+  string code = 1;
+  string title = 2;
+  string discount_type = 3;
+  double discount_value = 4;
+  double min_order_amount = 5;
+  optional double max_discount_amount = 6;
+  optional string start_date = 7;
+  optional string end_date = 8;
+  optional bool is_active = 9;
+  optional int32 usage_limit = 10;
+}
+
+message CreatePromotionResponse {
+  Promotion promotion = 1;
+}
+
+message GetPromotionRequest {
+  string id = 1;
+}
+
+message GetPromotionResponse {
+  Promotion promotion = 1;
+}
+
+message UpdatePromotionRequest {
+  string id = 1;
+  optional string title = 2;
+  optional string discount_type = 3;
+  optional double discount_value = 4;
+  optional double min_order_amount = 5;
+  optional double max_discount_amount = 6;
+  optional string start_date = 7;
+  optional string end_date = 8;
+  optional bool is_active = 9;
+  optional int32 usage_limit = 10;
+}
+
+message UpdatePromotionResponse {
+  Promotion promotion = 1;
+}
+
+message DeletePromotionRequest {
+  string id = 1;
+}
+
+message DeletePromotionResponse {
+  bool success = 1;
+}
+
+message ListOrdersRequest {
+  string status = 1;
+  PaginationRequest pagination = 2;
+}
+
+message ListOrdersResponse {
+  repeated Order orders = 1;
+  PaginationResponse pagination = 2;
+}
+
+service AdminService {
+  rpc GetDashboardStats(GetDashboardStatsRequest) returns (GetDashboardStatsResponse);
+  rpc GetAnalytics(GetAnalyticsRequest) returns (GetAnalyticsResponse);
+
+  rpc ListPromotions(ListPromotionsRequest) returns (ListPromotionsResponse);
+  rpc CreatePromotion(CreatePromotionRequest) returns (CreatePromotionResponse);
+  rpc GetPromotion(GetPromotionRequest) returns (GetPromotionResponse);
+  rpc UpdatePromotion(UpdatePromotionRequest) returns (UpdatePromotionResponse);
+  rpc DeletePromotion(DeletePromotionRequest) returns (DeletePromotionResponse);
+
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+}
